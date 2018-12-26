@@ -2,6 +2,7 @@ const cheerio = require('cheerio');
 const { promisify } = require('util');
 const { get } = require('request');
 const [ getPm ] = [get].map(promisify);
+const fs = require('fs');
 
 const pidList = [
   254,
@@ -22,15 +23,23 @@ const pidList = [
   1778
 ];
 
-const url = 'https://www.jbnu.ac.kr/kor/?menuID=10&pid=256';
-
 (async function() {
-  const { body } = await getPm(url);
-  const infos = parseHtml(body);
+  let infos = [];
+  for (const pid of pidList) {
+    const url = getUrl(pid);
+    const { body } = await getPm(url);
+    infos = infos.concat(parseHtml(body));
+  }
 
   console.log(infos);
+  fs.writeFile ('output.json', JSON.stringify(infos), function(err) {
+    if (err) throw err;
+    console.log('complete');
+  });
 })();
-
+function getUrl(pid = 254) {
+  return `https://www.jbnu.ac.kr/kor/?menuID=10&pid=${pid}`;
+}
 
 function parseHtml(html) {
   const $ = cheerio.load(html, {
