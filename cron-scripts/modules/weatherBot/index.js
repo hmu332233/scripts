@@ -1,32 +1,34 @@
 const request = require('request');
 
-const url = 'http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getMinuDustFrcstDspth';
-const SERVICE_KEY = process.env.WEATHER_SERVICE_KEY;
-const searchDate = getDate();
-// const searchDate = '2019-01-21';
-const InformCode = 'PM10';
-
-const queryString = getQueryString({
-  serviceKey: SERVICE_KEY,
-  searchDate,
-  InformCode
-});
-
-request({
-  url: `${url}?${queryString}` ,
-  method: 'GET'
-}, function (error, response, body) {
-  const { list } = JSON.parse(body);
-  const message = [
-    `*${list[0].informGrade.split(',')[0]}*`,
-    '',
-    list[0].dataTime,
-    list[0].informOverall,
-    list[0].informCause
-  ].join('\n');
-
-  sendMessage(message);
-});
+function sendWeatherMessage() {
+  const url = 'http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getMinuDustFrcstDspth';
+  const SERVICE_KEY = process.env.WEATHER_SERVICE_KEY;
+  const searchDate = getDate();
+  // const searchDate = '2019-01-21';
+  const InformCode = 'PM10';
+  
+  const queryString = getQueryString({
+    serviceKey: SERVICE_KEY,
+    searchDate,
+    InformCode
+  });
+  
+  request({
+    url: `${url}?${queryString}` ,
+    method: 'GET'
+  }, function (error, response, body) {
+    const { list } = JSON.parse(body);
+    const message = [
+      `*${list[0].informGrade.split(',')[0]}*`,
+      '',
+      list[0].dataTime,
+      list[0].informOverall,
+      list[0].informCause
+    ].join('\n');
+  
+    sendMessage(message);
+  });
+}
 
 function sendMessage(message) {
   const options = {
@@ -74,3 +76,5 @@ function getDate() {
     (dd>9 ? '' : '0') + dd
   ].join('-');
 }
+
+module.exports = sendWeatherMessage;
