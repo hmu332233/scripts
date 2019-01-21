@@ -18,11 +18,11 @@ request({
 }, function (error, response, body) {
   const { list } = JSON.parse(body);
   const message = [
-    '대벌대벌!\n',
+    `*${list[0].informGrade.split(',')[0]}*`,
+    '',
     list[0].dataTime,
-    list[0].informCause,
     list[0].informOverall,
-    list[0].informGrade.split(',')[0]
+    list[0].informCause
   ].join('\n');
 
   sendMessage(message);
@@ -36,7 +36,14 @@ function sendMessage(message) {
       'Content-Type': 'application/json'
     },
     body: {
-      text: message
+      attachments: [
+        {
+            pretext: "대벌대벌!",
+            text: message,
+            color: "#7CD197"
+        }
+      ],
+      mrkdwn: true
     },
     json: true
   };
